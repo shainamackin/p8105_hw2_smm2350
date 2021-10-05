@@ -5,15 +5,18 @@ date: "2021-10-09"
 output: github_document
 ---
 
-```{r }
-
+```{r libraries, echo = FALSE, message = FALSE}
+library(tidyverse)
+library(readxl)
 ```
 
-```{r}
-
+```{r trash}
+trash_df = read_excel(
+  "data files/Trash.xlsx", 
+  sheet = "Mr. Trash Wheel", 
+  range = "A2:N406",
+  col_names = FALSE,
+  na = "")
 ```
 
-```{r}
-
-```
 
