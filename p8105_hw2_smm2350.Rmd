@@ -10,13 +10,19 @@ library(tidyverse)
 library(readxl)
 ```
 
+## Problem 1
+
+First, I will read and clean the Mr. Trash Wheel sheet:
+
 ```{r trash}
-trash_df = read_excel(
-  "data files/Trash.xlsx", 
+trash_df = 
+  read_excel("data files/Trash.xlsx", 
   sheet = "Mr. Trash Wheel", 
   range = "A2:N406",
-  col_names = FALSE,
-  na = "")
+  col_names = TRUE) %>%
+janitor::clean_names() %>%
+drop_na() %>%
+mutate(sports_balls = round(sports_balls), digits = 0)
 ```
 
-
+trash_df 
