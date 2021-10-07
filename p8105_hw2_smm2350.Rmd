@@ -5,6 +5,8 @@ date: "2021-10-09"
 output: github_document
 ---
 
+# Homework 2
+
 ```{r libraries, echo = FALSE, message = FALSE}
 library(tidyverse)
 library(readxl)
@@ -12,7 +14,9 @@ library(readxl)
 
 ## Problem 1
 
-First, I will read and clean the Mr. Trash Wheel sheet:
+### Read and Clean
+
+First, I will read and clean the Mr. Trash Wheel sheet, including specifying the sheet and omitting non-data entries using `read_excel`, using reasonable variable names, omitting rows without dumpster-specific data, and rounding the number of sports balls to the nearest integer:
 
 ```{r trash}
 trash_df = 
@@ -23,6 +27,46 @@ trash_df =
 janitor::clean_names() %>%
 drop_na() %>%
 mutate(sports_balls = round(sports_balls), digits = 0)
+
+view(trash_df)
 ```
 
-trash_df 
+Second, I will read and clean the precipitation data for 2018 and 2019, including omitting rows without precipitation data and adding a variable for year: 
+
+```{r precipitation_2018_2019}
+precip2018_df = 
+  read_excel("data files/Trash.xlsx",
+  sheet = "2018 Precipitation",
+  skip = 1,
+  col_names = TRUE) %>%
+janitor::clean_names() %>%
+drop_na() %>%
+mutate(year = 2018)
+
+view(precip2018_df)
+  
+precip2019_df = 
+  read_excel("data files/Trash.xlsx",
+  sheet = "2019 Precipitation",
+  skip = 1,
+  col_names = TRUE) %>%
+janitor::clean_names() %>%
+drop_na() %>%
+mutate(year = 2019)
+
+view(precip2019_df)
+```
+
+Next, I will combine the two precipitation datasets and convert month to a character variable: 
+
+```{r precipitation_combined}
+precip_df = 
+  bind_rows(precip2018_df, precip2019_df) %>%
+  janitor::clean_names() %>%
+  mutate(month = month.name[as.numeric(month)])
+
+view(precip)
+```
+
+The Mr. Trash Wheel dataset has `r nrow(trash_df)` observations. The median number of sports balls in a dumpster in 2019 was `r trash_df %>% filter(year == 2019) %>% pull(sports_balls) %>% median()` balls. In addition to sports balls, the dataset records number of `cigarette buts`, `glass bottles`, `plastic bottles`, `polystyrene`, `grocery bags`, and `chip bags` every `month` for `r min(pull(trash_df, year))` to `r max(pull(trash_df, year))`. The precipitation dataset has `r nrow(precip_df)` observations, or months. The total precipitation in 2018 was `r precip_df %>% filter(year == 2018) %>% summarise(sum(total))` inches. The precipitation dataset includes the following variables: `r colnames(precip_df)`.
+
