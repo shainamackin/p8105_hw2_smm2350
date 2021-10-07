@@ -68,5 +68,29 @@ precip_df =
 view(precip)
 ```
 
-The Mr. Trash Wheel dataset has `r nrow(trash_df)` observations. The median number of sports balls in a dumpster in 2019 was `r trash_df %>% filter(year == 2019) %>% pull(sports_balls) %>% median()` balls. In addition to sports balls, the dataset records number of `cigarette buts`, `glass bottles`, `plastic bottles`, `polystyrene`, `grocery bags`, and `chip bags` every `month` for `r min(pull(trash_df, year))` to `r max(pull(trash_df, year))`. The precipitation dataset has `r nrow(precip_df)` observations, or months. The total precipitation in 2018 was `r precip_df %>% filter(year == 2018) %>% summarise(sum(total))` inches. The precipitation dataset includes the following variables: `r colnames(precip_df)`.
+The Mr. Trash Wheel dataset has `r nrow(trash_df)` observations. The median number of sports balls in a dumpster in 2019 was `r trash_df %>% filter(year == 2019) %>% pull(sports_balls) %>% median()` balls. In addition to sports balls, the dataset records number of `cigarette butts`, `glass bottles`, `plastic bottles`, `polystyrene`, `grocery bags`, and `chip bags` every `month` for `r min(pull(trash_df, year))` to `r max(pull(trash_df, year))`. The precipitation dataset has `r nrow(precip_df)` observations, or months. The total precipitation in 2018 was `r precip_df %>% filter(year == 2018) %>% summarise(sum(total))` inches. The precipitation dataset includes the following variables: `r colnames(precip_df)`.
+
+## Problem 2 
+
+```{r pols}
+pols_df = 
+  read_csv("data files/fivethirtyeight_datasets/pols-month.csv") %>%
+  janitor::clean_names() %>%
+  separate(mon, c("year", "month", "day")) %>%
+  mutate(month = month.name[as.numeric(month)]) %>%
+  mutate(president = factor(prez_dem, labels = c("gop", "dem"))) %>%
+  select(-prez_dem, -prez_gop, -day)
+```
+
+```{r snp}
+snp_df = 
+  read_csv("data files/fivethirtyeight_datasets/snp.csv") %>%
+  janitor::clean_names() %>%
+  mutate(lubridate::mdy(date))%>%
+  separate(date, c("month", "day", "year"))
+```
+
+
+
+
 
