@@ -20,9 +20,9 @@ This includes specifying the sheet and omitting non-data entries using `read_exc
 
 ```{r trash}
 trash_df = 
-  read_excel("data files/Trash-Wheel-Collection-Totals-7-2021-sept.xlsx", 
+  read_excel("data files/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
   sheet = "Mr. Trash Wheel", 
-  range = "A2:N575",
+  range = "A2:N535",
   col_names = TRUE) %>%
 janitor::clean_names() %>%
 drop_na() %>%
@@ -35,7 +35,7 @@ This includes omitting rows without precipitation data and adding a variable for
 
 ```{r precipitation_2018_2019}
 precip2018_df = 
-  read_excel("data files/Trash-Wheel-Collection-Totals-7-2021-sept.xlsx",
+  read_excel("data files/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
   sheet = "2018 Precipitation",
   skip = 1,
   col_names = TRUE) %>%
@@ -44,7 +44,7 @@ drop_na() %>%
 mutate(year = 2018)
   
 precip2019_df = 
-  read_excel("data files/Trash-Wheel-Collection-Totals-7-2021-sept.xlsx",
+  read_excel("data files/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
   sheet = "2019 Precipitation",
   skip = 1,
   col_names = TRUE) %>%
