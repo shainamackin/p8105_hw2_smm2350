@@ -14,47 +14,39 @@ library(readxl)
 
 ## Problem 1
 
-### Read and Clean
-
 First, I will read and clean the Mr. Trash Wheel sheet, including specifying the sheet and omitting non-data entries using `read_excel`, using reasonable variable names, omitting rows without dumpster-specific data, and rounding the number of sports balls to the nearest integer:
 
 ```{r trash}
 trash_df = 
-  read_excel("data files/Trash.xlsx", 
+  read_excel("data files/Trash-Wheel-Collection-Totals-7-2021-sept.xlsx", 
   sheet = "Mr. Trash Wheel", 
-  range = "A2:N406",
+  range = "A2:N575",
   col_names = TRUE) %>%
 janitor::clean_names() %>%
 drop_na() %>%
 mutate(sports_balls = round(sports_balls), digits = 0)
-
-view(trash_df)
 ```
 
 Second, I will read and clean the precipitation data for 2018 and 2019, including omitting rows without precipitation data and adding a variable for year: 
 
 ```{r precipitation_2018_2019}
 precip2018_df = 
-  read_excel("data files/Trash.xlsx",
+  read_excel("data files/Trash-Wheel-Collection-Totals-7-2021-sept.xlsx",
   sheet = "2018 Precipitation",
   skip = 1,
   col_names = TRUE) %>%
 janitor::clean_names() %>%
 drop_na() %>%
 mutate(year = 2018)
-
-view(precip2018_df)
   
 precip2019_df = 
-  read_excel("data files/Trash.xlsx",
+  read_excel("data files/Trash-Wheel-Collection-Totals-7-2021-sept.xlsx",
   sheet = "2019 Precipitation",
   skip = 1,
   col_names = TRUE) %>%
 janitor::clean_names() %>%
 drop_na() %>%
 mutate(year = 2019)
-
-view(precip2019_df)
 ```
 
 Next, I will combine the two precipitation datasets and convert month to a character variable: 
@@ -64,7 +56,6 @@ precip_df =
   bind_rows(precip2018_df, precip2019_df) %>%
   janitor::clean_names() %>%
   mutate(month = month.name[as.numeric(month)])
-view(precip_df)
 ```
 
 The Mr. Trash Wheel dataset has `r nrow(trash_df)` observations. The median number of sports balls in a dumpster in 2019 was `r trash_df %>% filter(year == 2019) %>% pull(sports_balls) %>% median()` balls. In addition to sports balls, the dataset records number of `cigarette butts`, `glass bottles`, `plastic bottles`, `polystyrene`, `grocery bags`, and `chip bags` every `month` for `r min(pull(trash_df, year))` to `r max(pull(trash_df, year))`. The precipitation dataset has `r nrow(precip_df)` observations, or months. The total precipitation in 2018 was `r precip_df %>% filter(year == 2018) %>% summarise(sum(total))` inches. The precipitation dataset includes the following variables: `r colnames(precip_df)`.
@@ -82,7 +73,6 @@ pols_df =
   mutate(year = as.numeric(year)) %>%
   mutate(president = factor(prez_dem, labels = c("gop", "dem"))) %>%
   select(-prez_dem, -prez_gop, -day)
-view(pols_df)
 
 snp_df = 
   read_csv("data files/fivethirtyeight_datasets/snp.csv") %>%
@@ -93,16 +83,12 @@ snp_df =
   mutate(year = as.numeric(year)) %>%
   mutate(year = ifelse(year > 2021, year - 100, year)) %>%
   select(-date)
-  
-view(snp_df)
 ```
 
 Next, I will tidy the `unemployment` data so that it can be merged with the previous datasets. 
 
 ```{r unemployment}
-
 unemployment_df = read_csv("data files/fivethirtyeight_datasets/unemployment.csv")
-view(unemployment_df)
 
 unemployment_tidy_df = 
   read_csv("data files/fivethirtyeight_datasets/unemployment.csv") %>%
@@ -113,7 +99,6 @@ unemployment_tidy_df =
   mutate(month = match(month, month.abb)) %>%
   mutate(month = month.name[as.numeric(month)]) %>%
   janitor::clean_names() 
-view(unemployment_tidy_df)
 ```
 
 Lastly, I will join the datasets by first merging `snp` and `pols` and then merging `unemployment` into the result. 
@@ -126,5 +111,9 @@ snp_pols_unemploy_df =
   left_join(snp_pols_df, unemployment_tidy_df, by = c("year", "month"))
 ```
 
-The `pols` dataset contained `r nrow(pols_df)` observations, or dates, ranging from `r min(pull(pols_df, year))` to `r max(pull(pols_df, year))`, with `r ncol(pols_df)` variables all related to the number of `gop` or `dem` politicians in office at that time. The `snp` dataset contained `r nrow(snp_df)` observations, or dates, ranging from `r min(pull(snp_df, year))` to `r max(pull(snp_df, year))`, with the variable `close` referring to the corresponding closing value of the S&P stock index at that time. The `unemployment` dataset originally contained `r nrow(unemployment_df)` observations, or years, with `month` variables and their corresponding percentages of unemployment. The tidied `unemployment` dataset contains `r nrow(unemployment_tidy_df)` observations, or dates, ranging from `r min(pull(unemployment_tidy_df, year))` to `r max(pull(unemployment_tidy_df, year))`, with their corresponding `unemployment` percentages. The joined `snp_pols_unemploy` dataset now contains `r nrow(snp_pols_unemploy_df)` observations, or dates, ranging from `r min(pull(snp_pols_unemploy_df, year))` to `r max(pull(snp_pols_unemploy_df, year))`, with `r ncol(snp_pols_unemploy_df)` variables including `close` value, `unemployment` percentage, and political party, whether `dem` or `rep`, of politicians accordingly. 
+The `pols` dataset contained `r nrow(pols_df)` observations, or dates, ranging from `r min(pull(pols_df, year))` to `r max(pull(pols_df, year))`, with `r ncol(pols_df)` variables all related to the number of `gop` or `dem` politicians in office at that time. The `snp` dataset contained `r nrow(snp_df)` observations, or dates, ranging from `r min(pull(snp_df, year))` to `r max(pull(snp_df, year))`, with the variable `close` referring to the corresponding closing value of the S&P stock index at that time. The `unemployment` dataset originally contained `r nrow(unemployment_df)` observations, or years, with `month` variables and their corresponding percentages of unemployment. The tidied `unemployment` dataset contains `r nrow(unemployment_tidy_df)` observations, or dates, ranging from `r min(pull(unemployment_tidy_df, year))` to `r max(pull(unemployment_tidy_df, year))`, with their corresponding `unemployment` percentages. The joined `snp_pols_unemploy` dataset now contains `r nrow(snp_pols_unemploy_df)` observations, or dates, ranging from `r min(pull(snp_pols_unemploy_df, year))` to `r max(pull(snp_pols_unemploy_df, year))`, with `r ncol(snp_pols_unemploy_df)` variables including `close` value, `unemployment` percentage, and political party (whether `dem` or `rep`) of politicians accordingly. 
+
+## Problem 3
+
+
   
