@@ -64,15 +64,16 @@ precip_df =
   bind_rows(precip2018_df, precip2019_df) %>%
   janitor::clean_names() %>%
   mutate(month = month.name[as.numeric(month)])
-
-view(precip)
+view(precip_df)
 ```
 
 The Mr. Trash Wheel dataset has `r nrow(trash_df)` observations. The median number of sports balls in a dumpster in 2019 was `r trash_df %>% filter(year == 2019) %>% pull(sports_balls) %>% median()` balls. In addition to sports balls, the dataset records number of `cigarette butts`, `glass bottles`, `plastic bottles`, `polystyrene`, `grocery bags`, and `chip bags` every `month` for `r min(pull(trash_df, year))` to `r max(pull(trash_df, year))`. The precipitation dataset has `r nrow(precip_df)` observations, or months. The total precipitation in 2018 was `r precip_df %>% filter(year == 2018) %>% summarise(sum(total))` inches. The precipitation dataset includes the following variables: `r colnames(precip_df)`.
 
 ## Problem 2 
 
-```{r pols}
+I will now clean the data in the `pols` and `snp` datasets.
+
+```{r pols_snp}
 pols_df = 
   read_csv("data files/fivethirtyeight_datasets/pols-month.csv") %>%
   janitor::clean_names() %>%
@@ -80,17 +81,40 @@ pols_df =
   mutate(month = month.name[as.numeric(month)]) %>%
   mutate(president = factor(prez_dem, labels = c("gop", "dem"))) %>%
   select(-prez_dem, -prez_gop, -day)
-```
+view(pols_df)
 
-```{r snp}
 snp_df = 
   read_csv("data files/fivethirtyeight_datasets/snp.csv") %>%
   janitor::clean_names() %>%
-  mutate(lubridate::mdy(date))%>%
-  separate(date, c("month", "day", "year"))
+  mutate(date = lubridate::mdy(date)) %>%
+  separate(date, c("year", "month", "date")) %>%
+  mutate(month = month.name[as.numeric(month)]) %>%
+  select(-date)
+view(snp_df)
 ```
 
+Next, I will tidy the `unemployment` data so that it can be merged with the previous datasets. 
 
+```{r unemployment}
+unemployment_df = 
+  read_csv("data files/fivethirtyeight_datasets/unemployment.csv") %>%
+  pivot_longer(
+    Jan:Dec,
+    names_to = "month",
+    values_to = "unemployment") %>%
+  mutate(month = match(month, month.abb)) %>%
+  mutate(month = month.name[as.numeric(month)]) %>%
+  janitor::clean_names() 
 
+view(unemployment_df)
+```
 
+Lastly, I will join the datasets by first merging `snp` and `pols` and then merging `unemployment` into the result. 
 
+```{r}
+
+```
+
+  
+  
+  
