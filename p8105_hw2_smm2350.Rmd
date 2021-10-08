@@ -115,7 +115,7 @@ The `pols` dataset contained `r nrow(pols_df)` observations, or dates, ranging f
 
 ## Problem 3
 
-First, I will load and tidy the baby names data. 
+### First, I will load and tidy the baby names data. 
 
 ```{r babies}
 babies_df = 
@@ -127,26 +127,48 @@ babies_df =
                             ifelse(grepl("BLACK NON HISP", ethnicity), "BLACK NON HISPANIC",
                                    ifelse(grepl("WHITE NON HISP", ethnicity), "WHITE NON HISPANIC",
                                           "HISPANIC")))) %>%
-  mutate(ethnicity = str_to_lower(ethnicity)) %>%
-  distinct(.keep_all = TRUE)
+  mutate(ethnicity = str_to_lower(ethnicity))  %>%
+  distinct()
 ```
 
-Rank in popularity of "Olivia" as a female baby name over time: 
+### Now, I will make some tables.
 
-```{r}
+```{r olivia_table}
+
+olivia_df = 
+  filter(babies_df, childs_first_name == "olivia", gender == "female") %>%
+  select(-gender, -childs_first_name, -count) %>%
+  pivot_wider(
+    names_from = "year_of_birth",
+    values_from = "rank"
+  ) %>%
+knitr::kable(caption = "Rank in popularity of Olivia as a female baby name over time, by ethnicity")
+```
+
+
+```{r malename_table}
+
+male_df = 
+  filter(babies_df, gender == "male", rank == 1) %>%
+  select(-gender, -count, -rank) %>%
+  pivot_wider(
+    names_from = "year_of_birth",
+    values_from = "childs_first_name"
+  ) %>%
+knitr::kable(caption = "Most popular male baby name over time, by ethnicity")
 
 ```
 
-Most popular name among male babies over time: 
+### Lastly, for male, white non-hispanic children born in 2016, I will make a scatter plot showing the number of children with a name against the rank in popularity of that name. 
 
-```{r}
+```{r male2016_plot}
+male2016_df = 
+  filter(babies_df, year_of_birth == 2016, gender == "male", ethnicity == "white non hispanic") %>%
+  select(-year_of_birth, -gender, -ethnicity)
 
-```
-
-Scatter plot showing number of children with a name against the rank in popularity of that time among male, white non-hispanic children born in 2016: 
-
-```{r}
-
+male2016_df %>%
+  ggplot(aes(x = rank, y = count)) +
+  geom_point(size = .4) 
 ```
 
   
